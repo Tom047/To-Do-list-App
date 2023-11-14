@@ -4,10 +4,6 @@ To run you will need to install Node.js. After this, you need to install the Web
 
 ```shell
 npm install
-npm install web3
-npm install http-server
-npx hardhat test
-npx hardhat run scripts/deploy.js
 ```
 
 And then you just need to start the server with the command:
