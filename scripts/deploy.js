@@ -1,33 +1,32 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+    const signers = await hre.ethers.getSigners();
+    if (signers.length === 0) {
+        throw new Error("No signers found. Check your network configuration.");
+    }
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+    const deployer = signers[0];
+    console.log("Deploying contracts with the account:", deployer.address);
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+    const balance = await hre.ethers.provider.getBalance(deployer.address);
+    console.log("Account balance:", balance.toString());
 
-  await lock.waitForDeployment();
+    const ToDoApp = await hre.ethers.getContractFactory("ToDoApp");
+    // Convert 100000 Gwei to Wei
+    const valueInWei = "1000000000"; // 100000 Gwei in Wei (100000 * 10^9)
 
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+    const toDoApp = await ToDoApp.deploy({
+        value: valueInWei, // 100000 Gwei in Wei
+        gasPrice: hre.ethers.parseUnits("1", "gwei") // Example gas price, adjust based on current network conditions
+    });
+
+    console.log("Awaiting confirmation...");
+    await toDoApp.waitForDeployment(); // Wait for the deployment transaction
+    console.log("ToDoApp deployed to:", toDoApp.target);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+    console.error(error);
+    process.exitCode = 1;
 });

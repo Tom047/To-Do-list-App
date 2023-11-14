@@ -1,5 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 
+const BSC_TESTNET_PRIVATE_KEY = process.env.BSC_TESTNET_PRIVATE_KEY;
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   // hardhat.config.ts
@@ -12,6 +14,12 @@ module.exports = {
         }
       }
     ]
+  },
+  networks: {
+    bsctestnet: {
+      url: "https://endpoints.omniatech.io/v1/bsc/testnet/public",
+      accounts: [BSC_TESTNET_PRIVATE_KEY].filter(Boolean) // Ensures that undefined or empty values are not included
+    }
   }
 };
 
